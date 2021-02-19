@@ -1,5 +1,13 @@
 # shopping_cart.py
 from datetime import datetime
+import os
+
+from dotenv import load_dotenv
+
+load_dotenv()
+
+#get player's name from .env file
+tax_rate = os.getenv("TAX_RATE", default=".0875")
 
 products = [
     {"id":1, "name": "Chocolate Sandwich Cookies", "department": "snacks", "aisle": "cookies cakes", "price": 3.50},
@@ -85,7 +93,7 @@ for item in shopping_list:
 print("-------------------------------------")
 
 print("Subtotal:", to_usd(sum(total_cost)))
-sales_tax = sum(total_cost) * .0875
+sales_tax = sum(total_cost) * float(tax_rate)
 print("Plus NYC Sales Tax (8.75%):", to_usd(sales_tax))
 total = sales_tax + sum(total_cost)
 print("Total: " + str(to_usd(total)))
