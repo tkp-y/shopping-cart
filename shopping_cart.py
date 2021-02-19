@@ -1,6 +1,8 @@
 # shopping_cart.py
 from datetime import datetime
 import os
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
 
 from dotenv import load_dotenv
 
@@ -111,40 +113,43 @@ print("Total: " + str(to_usd(total)))
 print("-------------------------------------")
 print("Thanks for your business! Please come again.")
 
+email == True:
 
-import os
-from dotenv import load_dotenv
-from sendgrid import SendGridAPIClient
-from sendgrid.helpers.mail import Mail
+send_email = input("Would you like to receive a receipt via email? Enter 'YES' or 'NO': ")
+while email == True: 
+    if send_email == "YES":
+        user_address = input("Enter your email address: ")
+        SENDGRID_API_KEY = os.getenv("SENDGRID_API_KEY", default="OOPS, please set env var called 'SENDGRID_API_KEY'")
+        SENDGRID_TEMPLATE_ID = os.getenv("SENDGRID_TEMPLATE_ID", default="OOPS, please set env var called 'SENDGRID_TEMPLATE_ID'")
+        SENDER_ADDRESS = os.getenv("SENDER_ADDRESS", default="OOPS, please set env var called 'SENDER_ADDRESS'")
 
-load_dotenv()
+        # this must match the test data structure
+        template_data = {
+            "total_price_usd": str(to_usd(total)),
+            "human_friendly_timestamp": now.strftime("%Y-%m-%d %H:%M:%S"),
+            "products": receipt_list
+        } # or construct this dictionary dynamically based on the results of some other process :-D
 
-SENDGRID_API_KEY = os.getenv("SENDGRID_API_KEY", default="OOPS, please set env var called 'SENDGRID_API_KEY'")
-SENDGRID_TEMPLATE_ID = os.getenv("SENDGRID_TEMPLATE_ID", default="OOPS, please set env var called 'SENDGRID_TEMPLATE_ID'")
-SENDER_ADDRESS = os.getenv("SENDER_ADDRESS", default="OOPS, please set env var called 'SENDER_ADDRESS'")
+        client = SendGridAPIClient(SENDGRID_API_KEY)
+        #print("CLIENT:", type(client))
 
-# this must match the test data structure
-template_data = {
-    "total_price_usd": str(to_usd(total)),
-    "human_friendly_timestamp": now.strftime("%Y-%m-%d %H:%M:%S"),
-    receipt_list
-} # or construct this dictionary dynamically based on the results of some other process :-D
+        message = Mail(from_email=SENDER_ADDRESS, to_emails=user_address)
+        message.template_id = SENDGRID_TEMPLATE_ID
+        message.dynamic_template_data = template_data
+        #print("MESSAGE:", type(message))
 
-client = SendGridAPIClient(SENDGRID_API_KEY)
-print("CLIENT:", type(client))
+        try:
+            response = client.send(message)
+            #print("RESPONSE:", type(response))
+            #print(response.status_code)
+            #print(response.body)
+            #print(response.headers)
 
-message = Mail(from_email=SENDER_ADDRESS, to_emails=SENDER_ADDRESS)
-message.template_id = SENDGRID_TEMPLATE_ID
-message.dynamic_template_data = template_data
-print("MESSAGE:", type(message))
-
-try:
-    response = client.send(message)
-    print("RESPONSE:", type(response))
-    print(response.status_code)
-    print(response.body)
-    print(response.headers)
-
-except Exception as err:
-    print(type(err))
-    print(err)
+        except Exception as err:
+            print(type(err))
+            print(err)
+    elif send_email == "NO":
+        email == False
+        break
+    else:
+        print("You must enter either 'YES' or 'NO': ")
