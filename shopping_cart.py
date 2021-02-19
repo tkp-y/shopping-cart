@@ -1,4 +1,5 @@
 # shopping_cart.py
+from datetime import datetime
 
 products = [
     {"id":1, "name": "Chocolate Sandwich Cookies", "department": "snacks", "aisle": "cookies cakes", "price": 3.50},
@@ -39,4 +40,37 @@ def to_usd(my_price):
 
 # TODO: write some Python code here to produce the desired output
 
-print(products)
+# datetime object containing current date and time
+now = datetime.now()
+
+print("-------------------------------------")
+print("TIFFANY AND GRO")
+print("-------------------------------------")
+
+print("Web: www.tiffanyandgro.com")
+print("Phone: 632.495.2827")
+print("Checkout Time: " + now.strftime("%Y-%m-%d %H:%M:%S"))
+
+
+continue_shop = True
+
+product_length = len(products)
+shopping_list = []
+product_ids = []
+for product in products:
+    product_ids.append(str(product["id"]))
+
+
+
+while continue_shop == True:
+    product_id = input("Please input a product identifier, or 'DONE' if there are no more items: ")
+    if product_id in product_ids:
+        shopping_list.append(int(product_id)) 
+    elif product_id == "DONE":
+        continue_shop == False
+        break
+    else:
+        print("Hey, are you sure that product identifier is correct? Please try again!")
+
+total_cost = []
+
