@@ -75,21 +75,29 @@ while continue_shop == True:
     product_id = input("Please input a product identifier, or 'DONE' if there are no more items: ")
     if product_id in product_ids:
         shopping_list.append(int(product_id)) 
+        if products[int(product_id) - 1]["price_per"] == "pound":
+            pounds = float(input("Please enter the number of pounds: "))
     elif product_id == "DONE":
         continue_shop == False
         break
     else:
         print("Hey, are you sure that product identifier is correct? Please try again!")
 
-total_cost = []
 
 
 print("-------------------------------------")
 print("Shoping Cart Items: ")
 
+total_cost = []
+
 for item in shopping_list:
-    print("+ " + products[item - 1]["name"] + " " + str(to_usd(products[item - 1]["price"])))
-    total_cost.append(products[item - 1]["price"])
+    if products[item - 1]["price_per"] == "pound":
+        price = products[item - 1]["price"] * pounds
+        print("+ " + products[item - 1]["name"] + " " + str(to_usd(price)))
+        total_cost.append(price)
+    else:
+        print("+ " + products[item - 1]["name"] + " " + str(to_usd(products[item - 1]["price"])))
+        total_cost.append(products[item - 1]["price"])
 
 print("-------------------------------------")
 
