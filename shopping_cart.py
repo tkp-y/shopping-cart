@@ -74,3 +74,18 @@ while continue_shop == True:
 
 total_cost = []
 
+
+print("-------------------------------------")
+print("Shoping Cart Items: ")
+
+for item in shopping_list:
+    print("+ " + products[item - 1]["name"] + " " + str(to_usd(products[item - 1]["price"])))
+    total_cost.append(products[item - 1]["price"])
+
+print("-------------------------------------")
+
+print("Subtotal:", to_usd(sum(total_cost)))
+
+
+print("-------------------------------------")
+print("Thanks for your business! Please come again.")
