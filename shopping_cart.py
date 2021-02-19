@@ -81,8 +81,7 @@ while continue_shop == True:
         if products[int(product_id) - 1]["price_per"] == "pound":
             pounds = float(input("Please enter the number of pounds: "))
     elif product_id == "DONE":
-        continue_shop == False
-        break
+        continue_shop = False
     else:
         print("Hey, are you sure that product identifier is correct? Please try again!")
 
@@ -113,10 +112,10 @@ print("Total: " + str(to_usd(total)))
 print("-------------------------------------")
 print("Thanks for your business! Please come again.")
 
-email == True:
+email = True
 
-send_email = input("Would you like to receive a receipt via email? Enter 'YES' or 'NO': ")
 while email == True: 
+    send_email = input("Would you like to receive a receipt via email? Enter 'YES' or 'NO': ")
     if send_email == "YES":
         user_address = input("Enter your email address: ")
         SENDGRID_API_KEY = os.getenv("SENDGRID_API_KEY", default="OOPS, please set env var called 'SENDGRID_API_KEY'")
@@ -148,8 +147,11 @@ while email == True:
         except Exception as err:
             print(type(err))
             print(err)
+        email = False
+        print("Your receipt has been sent to your email!")
     elif send_email == "NO":
-        email == False
+        email = False
+        print("Thank you!")
         break
     else:
-        print("You must enter either 'YES' or 'NO': ")
+        print("Hey, are you sure you entered correctly? Please try again!")
