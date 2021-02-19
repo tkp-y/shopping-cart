@@ -85,7 +85,10 @@ for item in shopping_list:
 print("-------------------------------------")
 
 print("Subtotal:", to_usd(sum(total_cost)))
-
+sales_tax = sum(total_cost) * .0875
+print("Plus NYC Sales Tax (8.75%):", to_usd(sales_tax))
+total = sales_tax + sum(total_cost)
+print("Total: " + str(to_usd(total)))
 
 print("-------------------------------------")
 print("Thanks for your business! Please come again.")
