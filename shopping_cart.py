@@ -112,6 +112,14 @@ print("Total: " + str(to_usd(total)))
 print("-------------------------------------")
 print("Thanks for your business! Please come again.")
 
+
+os.chdir("/Desktop/receipts")
+
+file_name = ("/receipts/" + now.strftime("%Y-%m-%d-%H-%M-%S") + str(now.microsecond) + ".txt")
+
+with open(os.path.join(receipts, file_name), "w") as file:
+    file.write("Hello")
+
 email = True
 
 while email == True: 
