@@ -77,7 +77,7 @@ while continue_shop == True:
     product_id = input("Please input a product identifier, or 'DONE' if there are no more items: ")
     if product_id in product_ids:
         shopping_list.append(int(product_id)) 
-        receipt_list.append({"id":int(product_id), "name": products[int(product_id)-1]["name"]})
+        receipt_list.append({"id":int(product_id), "name": products[int(product_id)-1]["name"], "price": to_usd(products[int(product_id)-1]["price"])})
         if products[int(product_id) - 1]["price_per"] == "pound":
             pounds = float(input("Please enter the number of pounds: "))
     elif product_id == "DONE":
@@ -143,12 +143,14 @@ while email == True:
             #print(response.status_code)
             #print(response.body)
             #print(response.headers)
-
+            print("Your receipt has been sent to your email!")
+            email = False
         except Exception as err:
-            print(type(err))
-            print(err)
-        email = False
-        print("Your receipt has been sent to your email!")
+            print("Please enter a valid email.")
+            #print(type(err))
+            #print(err)
+        
+        
     elif send_email == "NO":
         email = False
         print("Thank you!")
