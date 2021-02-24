@@ -8,9 +8,10 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-#get player's name from .env file
+#get tax rate name from .env file
 TAX_RATE = os.getenv("TAX_RATE", default=.0875)
 
+#list of products and descriptions
 products = [
     {"id":1, "name": "Chocolate Sandwich Cookies", "department": "snacks", "aisle": "cookies cakes", "price": 3.50, "price_per": "item"},
     {"id":2, "name": "All-Seasons Salt", "department": "pantry", "aisle": "spices seasonings", "price": 4.99, "price_per": "item"},
@@ -36,6 +37,7 @@ products = [
 ] # based on data from Instacart: https://www.instacart.com/datasets/grocery-shopping-2017
 
 
+#to convert numbers to price format
 def to_usd(my_price):
     """
     Converts a numeric value to usd-formatted string, for printing and display purposes.
@@ -49,41 +51,53 @@ def to_usd(my_price):
     return f"${my_price:,.2f}" #> $12,000.71
 
 
-# TODO: write some Python code here to produce the desired output
 
-# datetime object containing current date and time
+#datetime object containing current date and time
 now = datetime.now()
 
 
-
+#boolean to keep track of whether to continue prompting user to input items or not
 continue_shop = True
 
+#find the length of the list of products
 product_length = len(products)
+#initialize list to hold user entered product ids
 shopping_list = []
+#initialize list to hold all existing product ids in string format
 product_ids = []
+
+#add product ids in string format to a list
 for product in products:
     product_ids.append(str(product["id"]))
 
+#initialize list for emailing the receipt
 receipt_list = []
+#initialize list for adding items to be printed onto a txt file
 items_bought = []
 
+#loop and ask user to input product id until user is done
 while continue_shop == True:
     product_id = input("Please input a product identifier, or 'DONE' if there are no more items: ")
     if product_id in product_ids:
         shopping_list.append(int(product_id)) 
+        #for emailing the receipt
         receipt_list.append({"id":int(product_id), "name": products[int(product_id)-1]["name"], "price": to_usd(products[int(product_id)-1]["price"])})
         #for printing the receipt
         items_bought.append(products[int(product_id) - 1]["name"])
+        #if the item is priced in pounds, ask user to ender number of pounds
         if products[int(product_id) - 1]["price_per"] == "pound":
             pounds = float(input("Please enter the number of pounds: "))
+    #leave loop when user is finished
     elif product_id == "DONE":
         continue_shop = False
+    #if user inputs invalid input, tell user to try again
     else:
         print("Hey, are you sure that product identifier is correct? Please try again!")
 
+#count the number of items bought by user
 number_of_items = len(items_bought)
 
-
+#print introduction
 print("-------------------------------------")
 print("TIFFANY AND GRO")
 print("-------------------------------------")
@@ -95,9 +109,12 @@ print("Checkout Time: " + now.strftime("%Y-%m-%d %H:%M:%S"))
 print("-------------------------------------")
 print("Shopping Cart Items: ")
 
+#list to add the prices of items
 total_cost = []
 
+#loop through each item that the user has bought and find the price
 for item in shopping_list:
+    #if the product is priced by pound
     if products[item - 1]["price_per"] == "pound":
         price = products[item - 1]["price"] * pounds
         print_item = ("+ " + products[item - 1]["name"] + " " + str(to_usd(price)))
@@ -109,31 +126,68 @@ for item in shopping_list:
 
 print("-------------------------------------")
 
+#print totals and tax amounts
 print("Subtotal:", to_usd(sum(total_cost)))
 sales_tax = sum(total_cost) * float(TAX_RATE)
 print("Plus NYC Sales Tax (" + str(float(TAX_RATE) * 100)+ "%):", to_usd(sales_tax))
 total = sales_tax + sum(total_cost)
 print("Total: " + str(to_usd(total)))
 
+#print farewell message
 print("-------------------------------------")
 print("Thanks for your business! Please come again.")
 
-cwd = os.getcwd() 
-  
-# print the current directory 
-print("Current working directory is:", cwd) 
+#boolean to ask user if they want receipt emailed
+email = True
 
+while email == True: 
+    send_email = input("Would you like to receive a receipt via email? Enter 'YES' or 'NO': ")
+    #send email to user through sendgrid
+    if send_email == "YES":
+        user_address = input("Enter your email address: ")
+        SENDGRID_API_KEY = os.getenv("SENDGRID_API_KEY", default="OOPS, please set env var called 'SENDGRID_API_KEY'")
+        SENDGRID_TEMPLATE_ID = os.getenv("SENDGRID_TEMPLATE_ID", default="OOPS, please set env var called 'SENDGRID_TEMPLATE_ID'")
+        SENDER_ADDRESS = os.getenv("SENDER_ADDRESS", default="OOPS, please set env var called 'SENDER_ADDRESS'")
+
+        # this must match the test data structure
+        template_data = {
+            "total_price_usd": str(to_usd(total)),
+            "human_friendly_timestamp": now.strftime("%Y-%m-%d %H:%M:%S"),
+            "products": receipt_list
+        } # or construct this dictionary dynamically based on the results of some other process :-D
+
+        client = SendGridAPIClient(SENDGRID_API_KEY)
+
+
+        message = Mail(from_email=SENDER_ADDRESS, to_emails=user_address)
+        message.template_id = SENDGRID_TEMPLATE_ID
+        message.dynamic_template_data = template_data
+
+
+        try:
+            response = client.send(message)
+            print("Your receipt has been sent to your email!")
+            email = False
+        #if the user does not enter a valid email, loop through the loop again
+        except Exception as err:
+            print("Please enter a valid email.")
+
+    #if the user does not want an email, print farewell  
+    elif send_email == "NO":
+        email = False
+        print("Thank you!")
+        break
+    #if the user does not enter YES or NO, prompt to try again
+    else:
+        print("Hey, are you sure you entered correctly? Please try again!")
+
+#change directories to the receipts directory within the repository
 os.chdir("/Users/tiffanyku/Desktop/shopping-cart/receipts")
 
-cwd = os.getcwd() 
-  
-# print the current directory 
-print("Current working directory is:", cwd) 
-
+#add a file name of the current date and time
 file_name = (now.strftime("%Y-%m-%d-%H-%M-%S") + str(now.microsecond) + ".txt")
 
-#receipt_file = open(file_name, "w")
-
+#open the new txt file and write receipt contents into it
 with open(file_name, "w") as file:
     file.write("-------------------------------------")
     file.write("\n")
@@ -157,59 +211,12 @@ with open(file_name, "w") as file:
         file.write("\n")
     file.write("-------------------------------------")
     file.write("\n")
-    file.write("Subtotal:" + str(to_usd(sum(total_cost))))
+    file.write("Subtotal: " + str(to_usd(sum(total_cost))))
     file.write("\n")
-    file.write("Plus NYC Sales Tax (" + str(float(TAX_RATE) * 100)+ "%):" + str(to_usd(sales_tax)))
+    file.write("Plus NYC Sales Tax (" + str(float(TAX_RATE) * 100)+ "%): " + str(to_usd(sales_tax)))
     file.write("\n")
     file.write("Total: " + str(to_usd(total)))
     file.write("\n")
     file.write("-------------------------------------")
     file.write("\n")
     file.write("Thanks for your business! Please come again.")
-
-
-email = True
-
-while email == True: 
-    send_email = input("Would you like to receive a receipt via email? Enter 'YES' or 'NO': ")
-    if send_email == "YES":
-        user_address = input("Enter your email address: ")
-        SENDGRID_API_KEY = os.getenv("SENDGRID_API_KEY", default="OOPS, please set env var called 'SENDGRID_API_KEY'")
-        SENDGRID_TEMPLATE_ID = os.getenv("SENDGRID_TEMPLATE_ID", default="OOPS, please set env var called 'SENDGRID_TEMPLATE_ID'")
-        SENDER_ADDRESS = os.getenv("SENDER_ADDRESS", default="OOPS, please set env var called 'SENDER_ADDRESS'")
-
-        # this must match the test data structure
-        template_data = {
-            "total_price_usd": str(to_usd(total)),
-            "human_friendly_timestamp": now.strftime("%Y-%m-%d %H:%M:%S"),
-            "products": receipt_list
-        } # or construct this dictionary dynamically based on the results of some other process :-D
-
-        client = SendGridAPIClient(SENDGRID_API_KEY)
-        #print("CLIENT:", type(client))
-
-        message = Mail(from_email=SENDER_ADDRESS, to_emails=user_address)
-        message.template_id = SENDGRID_TEMPLATE_ID
-        message.dynamic_template_data = template_data
-        #print("MESSAGE:", type(message))
-
-        try:
-            response = client.send(message)
-            #print("RESPONSE:", type(response))
-            #print(response.status_code)
-            #print(response.body)
-            #print(response.headers)
-            print("Your receipt has been sent to your email!")
-            email = False
-        except Exception as err:
-            print("Please enter a valid email.")
-            #print(type(err))
-            #print(err)
-        
-        
-    elif send_email == "NO":
-        email = False
-        print("Thank you!")
-        break
-    else:
-        print("Hey, are you sure you entered correctly? Please try again!")
