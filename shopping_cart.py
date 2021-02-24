@@ -54,13 +54,6 @@ def to_usd(my_price):
 # datetime object containing current date and time
 now = datetime.now()
 
-print("-------------------------------------")
-print("TIFFANY AND GRO")
-print("-------------------------------------")
-
-print("Web: www.tiffanyandgro.com")
-print("Phone: 632.495.2827")
-print("Checkout Time: " + now.strftime("%Y-%m-%d %H:%M:%S"))
 
 
 continue_shop = True
@@ -72,12 +65,15 @@ for product in products:
     product_ids.append(str(product["id"]))
 
 receipt_list = []
+items_bought = []
 
 while continue_shop == True:
     product_id = input("Please input a product identifier, or 'DONE' if there are no more items: ")
     if product_id in product_ids:
         shopping_list.append(int(product_id)) 
         receipt_list.append({"id":int(product_id), "name": products[int(product_id)-1]["name"], "price": to_usd(products[int(product_id)-1]["price"])})
+        #for printing the receipt
+        items_bought.append(products[int(product_id) - 1]["name"])
         if products[int(product_id) - 1]["price_per"] == "pound":
             pounds = float(input("Please enter the number of pounds: "))
     elif product_id == "DONE":
@@ -85,17 +81,27 @@ while continue_shop == True:
     else:
         print("Hey, are you sure that product identifier is correct? Please try again!")
 
+number_of_items = len(items_bought)
 
 
 print("-------------------------------------")
-print("Shoping Cart Items: ")
+print("TIFFANY AND GRO")
+print("-------------------------------------")
+
+print("Web: www.tiffanyandgro.com")
+print("Phone: 632.495.2827")
+print("Checkout Time: " + now.strftime("%Y-%m-%d %H:%M:%S"))
+
+print("-------------------------------------")
+print("Shopping Cart Items: ")
 
 total_cost = []
 
 for item in shopping_list:
     if products[item - 1]["price_per"] == "pound":
         price = products[item - 1]["price"] * pounds
-        print("+ " + products[item - 1]["name"] + " " + str(to_usd(price)))
+        print_item = ("+ " + products[item - 1]["name"] + " " + str(to_usd(price)))
+        print(print_item)
         total_cost.append(price)
     else:
         print("+ " + products[item - 1]["name"] + " " + str(to_usd(products[item - 1]["price"])))
@@ -112,13 +118,55 @@ print("Total: " + str(to_usd(total)))
 print("-------------------------------------")
 print("Thanks for your business! Please come again.")
 
+cwd = os.getcwd() 
+  
+# print the current directory 
+print("Current working directory is:", cwd) 
 
-os.chdir("/Desktop/receipts")
+os.chdir("/Users/tiffanyku/Desktop/shopping-cart/receipts")
 
-file_name = ("/receipts/" + now.strftime("%Y-%m-%d-%H-%M-%S") + str(now.microsecond) + ".txt")
+cwd = os.getcwd() 
+  
+# print the current directory 
+print("Current working directory is:", cwd) 
 
-with open(os.path.join(receipts, file_name), "w") as file:
-    file.write("Hello")
+file_name = (now.strftime("%Y-%m-%d-%H-%M-%S") + str(now.microsecond) + ".txt")
+
+#receipt_file = open(file_name, "w")
+
+with open(file_name, "w") as file:
+    file.write("-------------------------------------")
+    file.write("\n")
+    file.write("TIFFANY AND GRO")
+    file.write("\n")
+    file.write("-------------------------------------")
+    file.write("\n")    
+    file.write("Web: www.tiffanyandgro.com")
+    file.write("\n")
+    file.write("Phone: 632.495.2827")
+    file.write("\n")
+    file.write("Checkout Time: " + now.strftime("%Y-%m-%d %H:%M:%S"))
+    file.write("\n")
+    file.write("-------------------------------------")
+    file.write("\n")
+    file.write("Shopping Cart Items: ")
+    file.write("\n")
+    for item in range(0, number_of_items):
+        file.write(items_bought[item] + " ")
+        file.write(str(to_usd(total_cost[item])))
+        file.write("\n")
+    file.write("-------------------------------------")
+    file.write("\n")
+    file.write("Subtotal:" + str(to_usd(sum(total_cost))))
+    file.write("\n")
+    file.write("Plus NYC Sales Tax (" + str(float(TAX_RATE) * 100)+ "%):" + str(to_usd(sales_tax)))
+    file.write("\n")
+    file.write("Total: " + str(to_usd(total)))
+    file.write("\n")
+    file.write("-------------------------------------")
+    file.write("\n")
+    file.write("Thanks for your business! Please come again.")
+
 
 email = True
 
