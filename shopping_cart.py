@@ -75,6 +75,8 @@ for product in products:
 receipt_list = []
 #initialize list for adding items to be printed onto a txt file
 items_bought = []
+#initialize list to hold items that are pay per pound
+pounds = []
 
 #loop and ask user to input product id until user is done
 while continue_shop == True:
@@ -85,15 +87,19 @@ while continue_shop == True:
         receipt_list.append({"id":int(product_id), "name": products[int(product_id)-1]["name"], "price": to_usd(products[int(product_id)-1]["price"])})
         #for printing the receipt
         items_bought.append(products[int(product_id) - 1]["name"])
-        #if the item is priced in pounds, ask user to ender number of pounds
+        #if the item is priced in pounds, ask user to enter number of pounds, store the number of pounds
         if products[int(product_id) - 1]["price_per"] == "pound":
-            pounds = float(input("Please enter the number of pounds: "))
+            pounds_amount = float(input("Please enter the number of pounds: "))
+            pounds.append(pounds_amount)
+        else:
+            pounds.append(0)
     #leave loop when user is finished
     elif product_id == "DONE":
         continue_shop = False
     #if user inputs invalid input, tell user to try again
     else:
         print("Hey, are you sure that product identifier is correct? Please try again!")
+
 
 #count the number of items bought by user
 number_of_items = len(items_bought)
@@ -113,12 +119,14 @@ print("Shopping Cart Items: ")
 #list to add the prices of items
 total_cost = []
 
+count = 0
 #loop through each item that the user has bought and find the price
 for item in shopping_list:
+    count = count + 1
     #if the product is priced by pound
     #BONUS: HANDLING PRICE PER POUND
     if products[item - 1]["price_per"] == "pound":
-        price = products[item - 1]["price"] * pounds
+        price = products[item - 1]["price"] * pounds[count-1]
         print_item = ("+ " + products[item - 1]["name"] + " " + str(to_usd(price)))
         print(print_item)
         total_cost.append(price)
