@@ -23,8 +23,6 @@ From inside the virtual environment, install package dependencies:
 
     pip install -r requirements.txt
 
-From within an active virtual environment, install the sendgrid package:
-
     pip install sendgrid
 
 

@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+#BONUS: CONFIGURING SALES TAX RATE
 #get tax rate name from .env file
 TAX_RATE = os.getenv("TAX_RATE", default=.0875)
 
@@ -115,6 +116,7 @@ total_cost = []
 #loop through each item that the user has bought and find the price
 for item in shopping_list:
     #if the product is priced by pound
+    #BONUS: HANDLING PRICE PER POUND
     if products[item - 1]["price_per"] == "pound":
         price = products[item - 1]["price"] * pounds
         print_item = ("+ " + products[item - 1]["name"] + " " + str(to_usd(price)))
@@ -137,6 +139,7 @@ print("Total: " + str(to_usd(total)))
 print("-------------------------------------")
 print("Thanks for your business! Please come again.")
 
+#BONUS: SENDING RECEIPTS VIA EMAIL
 #boolean to ask user if they want receipt emailed
 email = True
 
@@ -181,6 +184,7 @@ while email == True:
     else:
         print("Hey, are you sure you entered correctly? Please try again!")
 
+#BONUS: WRITING RECEIPTS TO FILE
 #change directories to the receipts directory within the repository
 os.chdir("/Users/tiffanyku/Desktop/shopping-cart/receipts")
 
